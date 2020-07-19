@@ -1,12 +1,17 @@
+//--------------------------------------------------------------------------------
+// @file   SoilMonitor.ino
+// @brief  土壌水分モニタ
+//--------------------------------------------------------------------------------
+
 #include <M5StickC.h>
+#include "SoilMonitor.h"
+
+SoilMonitor soilMonitor;
 
 void setup() {
-  // put your setup code here, to run once:
-  M5.begin();
-  M5.Lcd.print("Hello M5!");
+  soilMonitor.setup();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  soilMonitor.loop();
 }
