@@ -16,7 +16,7 @@ namespace
     const int cRawValTextOffsetY = 20;
 
     const int cPIN_MOISTURE_SENSOR = 33;
-    const int cMoistuireMaxValue = 3300;
+    const int cMoistuireMaxValue = 4095;
     const int cSamplingNum = 10;
 }
 
@@ -34,7 +34,9 @@ void SoilMonitor::setup()
 //--------------------------------------------------------------------------------
 void SoilMonitor::loop()
 {
-    if (checkInterval_())
+    M5.update();
+
+    if (checkInterval_() || M5.BtnA.isPressed())
     {
         float aveRatio = 0.f;
         int aveRawVal = 0;
