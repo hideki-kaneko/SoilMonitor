@@ -14,5 +14,7 @@ public:
 private:
     //--------------------------------------------------------------------------------
     void drawBar_(float ratio);
-    int mCounter = 0;
+    void drawText_(float ratio, int rawVal);
+    float getMoistureRatio_();
+    int getMoistureRawVal_();
 };

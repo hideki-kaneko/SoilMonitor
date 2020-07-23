@@ -13,6 +13,10 @@ namespace
     const int cBarLevelLow = 3;
     const int cBarLevelMid = 6;
     const int cCenterTextOffsetY = -6;
+    const int cRawValTextOffsetY = 20;
+
+    const int cPIN_MOISTURE_SENSOR = 33;
+    const int cMoistuireMaxValue = 3300;
 }
 
 //--------------------------------------------------------------------------------
@@ -26,9 +30,11 @@ void SoilMonitor::setup()
 void SoilMonitor::loop()
 {
     M5.Lcd.fillScreen(TFT_BLACK);
-    drawBar_(mCounter / 10.f);
+    const float ratio = getMoistureRatio_();
+    const int rawVal = getMoistureRawVal_();
+    drawBar_(ratio);
+    drawText_(ratio, rawVal);
     delay(1000);
-    mCounter = (mCounter + 1) % 10;
 }
 //--------------------------------------------------------------------------------
 void SoilMonitor::drawBar_(float ratio)
@@ -72,10 +78,34 @@ void SoilMonitor::drawBar_(float ratio)
             );
         }
     }
-
-    // 数値を描画
-    M5.Lcd.setTextSize(2);
-    String text = static_cast<int>(ratio * 100) + String("%");
-    M5.Lcd.drawCentreString(text, width / 2.f, (height / 2.f) + cCenterTextOffsetY, 1);
 }
 //--------------------------------------------------------------------------------
+void SoilMonitor::drawText_(float ratio, int rawVal)
+{
+    const float height = M5.Lcd.height();
+    const float width = M5.Lcd.width();
+
+    // パーセント
+    M5.Lcd.setTextSize(2);
+    String strPercent = static_cast<int>(ratio * 100) + String("%");
+    M5.Lcd.drawCentreString(strPercent, width / 2.f, (height / 2.f) + cCenterTextOffsetY, 1);
+    
+    // 生の値
+    String strRaw(rawVal);
+    M5.Lcd.drawCentreString(strRaw, width / 2.f, (height / 2.f) + cRawValTextOffsetY, 1);
+}
+//--------------------------------------------------------------------------------
+float SoilMonitor::getMoistureRatio_()
+{
+    const int rawVal = getMoistureRawVal_();
+    const float ratio = static_cast<float>(rawVal) / cMoistuireMaxValue;
+
+    return ratio;
+}
+//--------------------------------------------------------------------------------
+int SoilMonitor::getMoistureRawVal_()
+{
+    const int rawVal = analogRead(cPIN_MOISTURE_SENSOR);
+    return rawVal;
+}
+//-------------------------------------------------------------------------------- 
