@@ -17,6 +17,7 @@ namespace
 
     const int cPIN_MOISTURE_SENSOR = 33;
     const int cMoistuireMaxValue = 3300;
+    const int cSamplingNum = 10;
 }
 
 //--------------------------------------------------------------------------------
@@ -24,17 +25,32 @@ void SoilMonitor::setup()
 {
     M5.begin();
     M5.Lcd.setRotation(2);
-    drawBar_(0.6f);
+    RTC_TimeTypeDef TimeStruct;
+    TimeStruct.Hours   = 0;
+    TimeStruct.Minutes = 0;
+    TimeStruct.Seconds = 0;
+    M5.Rtc.SetTime(&TimeStruct);
 }
 //--------------------------------------------------------------------------------
 void SoilMonitor::loop()
 {
-    M5.Lcd.fillScreen(TFT_BLACK);
-    const float ratio = getMoistureRatio_();
-    const int rawVal = getMoistureRawVal_();
-    drawBar_(ratio);
-    drawText_(ratio, rawVal);
-    delay(1000);
+    if (checkInterval_())
+    {
+        float aveRatio = 0.f;
+        int aveRawVal = 0;
+        for (int i = 0; i < cSamplingNum; i++)
+        {
+            aveRatio += getMoistureRatio_();
+            aveRawVal += getMoistureRawVal_();
+        }
+        aveRatio /= cSamplingNum;
+        aveRawVal = static_cast<int>(static_cast<float>(aveRawVal) / cSamplingNum);
+        
+        M5.Lcd.fillScreen(TFT_BLACK);
+        drawBar_(aveRatio);
+        drawText_(aveRatio, aveRawVal);
+        delay(1000);
+    }
 }
 //--------------------------------------------------------------------------------
 void SoilMonitor::drawBar_(float ratio)
@@ -108,4 +124,16 @@ int SoilMonitor::getMoistureRawVal_()
     const int rawVal = analogRead(cPIN_MOISTURE_SENSOR);
     return rawVal;
 }
-//-------------------------------------------------------------------------------- 
+//--------------------------------------------------------------------------------
+bool SoilMonitor::checkInterval_()
+{
+    RTC_TimeTypeDef time;
+    M5.Rtc.GetTime(&time);
+    if (time.Seconds == 0)
+    {
+        return true;
+    }
+
+    return false;
+}
+//--------------------------------------------------------------------------------

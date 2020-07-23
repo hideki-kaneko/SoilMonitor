@@ -17,4 +17,5 @@ private:
     void drawText_(float ratio, int rawVal);
     float getMoistureRatio_();
     int getMoistureRawVal_();
+    bool checkInterval_();
 };
