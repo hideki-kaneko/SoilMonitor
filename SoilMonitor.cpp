@@ -9,6 +9,7 @@
 namespace
 {
     const int cBarDivNum = 10;
+    const int cCenterTextOffsetY = -6;
 }
 
 //--------------------------------------------------------------------------------
@@ -21,6 +22,10 @@ void SoilMonitor::setup()
 //--------------------------------------------------------------------------------
 void SoilMonitor::loop()
 {
+    // M5.Lcd.fillScreen(TFT_BLACK);
+    drawBar_(mCounter / 10.f);
+    delay(1000);
+    mCounter = (mCounter + 1) % 10;
 }
 //--------------------------------------------------------------------------------
 void SoilMonitor::drawBar_(float ratio)
@@ -41,5 +46,10 @@ void SoilMonitor::drawBar_(float ratio)
             M5.Lcd.drawRect(0, height - lectHeight * (i + 1), width, lectHeight, color2);
         }
     }
+
+    // 数値を描画
+    M5.Lcd.setTextSize(2);
+    String text = static_cast<int>(ratio * 100) + String("%");
+    M5.Lcd.drawCentreString(text, width / 2.f, (height / 2.f) + cCenterTextOffsetY, 1);
 }
 //--------------------------------------------------------------------------------
